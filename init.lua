@@ -230,6 +230,15 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   end
 end
 
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'javascript', 'typescript', 'lua', 'json', 'yaml' },
+  callback = function()
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+    vim.opt_local.expandtab = true
+  end,
+})
 ---@type vim.Option
 local rtp = vim.opt.rtp
 rtp:prepend(lazypath)
@@ -403,15 +412,25 @@ require('lazy').setup({
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+      local actions = require 'telescope.actions' --
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
-        --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            i = {
+              ['<C-s>'] = actions.file_vsplit,
+            },
+            n = {
+              ['<C-s>'] = actions.file_vsplit,
+            },
+          },
+          file_ignore_patterns = {
+            'node_modules/.',
+            '%.git/',
+            'dist/.',
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -921,18 +940,53 @@ require('lazy').setup({
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
+      --  and try some other
       local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+
+      statusline.section_location = function()
+        return '%2l:%-2v'
+      end
+
+      statusline.setup {
+        use_icons = vim.g.have_nerd_font,
+
+        content = {
+          active = function()
+            local filename = vim.fn.expand '%:t'
+            if filename == '' then
+              filename = '[No Name]'
+            end
+            return filename
+          end,
+
+          inactive = function()
+            return ''
+          end,
+        },
+      }
+      -- statusline plugin
+      -- local statusline = require 'mini.statusline'
+      -- -- set use_icons to true if you have a Nerd Font
+      -- statusline.setup {
+      --   use_icons = vim.g.have_nerd_font,
+      --   -- override the whole content
+      --   content = function()
+      --     -- just the filename (no path). Use %:t for tail (filename only)
+      --     local name = vim.fn.expand '%:t'
+      --     if name == '' then
+      --       name = '[No Name]'
+      --     end
+      --     return name
+      --   end,
+      -- }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- ---@diagnostic disable-next-line: duplicate-set-field
+      -- statusline.section_location = function()
+      --   return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
@@ -984,7 +1038,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
