@@ -256,7 +256,7 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  -- 'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -283,6 +283,16 @@ require('lazy').setup({
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
+      current_line_blame = true,
+
+      current_line_blame_opts = {
+        virt_text = true, -- show as virtual text
+        virt_text_pos = 'eol', -- end of line (VS Code–like)
+        delay = 300, -- ms before showing
+        ignore_whitespace = false,
+      },
+
+      current_line_blame_formatter = '<author>, <author_time:%R> • <summary>',
       signs = {
         add = { text = '+' },
         change = { text = '~' },
@@ -355,6 +365,7 @@ require('lazy').setup({
       spec = {
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>b', group = 'De[b]ug' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
