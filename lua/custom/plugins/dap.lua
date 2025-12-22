@@ -24,59 +24,49 @@ return {
           ),
         }
       end
-      --   local chrome_path = adapters_path .. '/vscode-chrome-debug'
-      --   if vim.fn.isdirectory(chrome_path) == 0 then
-      --     vim.fn.system {
-      --       'bash',
-      --       '-c',
-      --       string.format(
-      --         [[
-      --           cd %s &&
-      --           git clone https://github.com/Microsoft/vscode-chrome-debug &&
-      --           cd vscode-chrome-debug &&
-      --           npm install &&
-      --           npm run build
-      --         ]],
-      --         adapters_path
-      --       ),
-      --     }
-      --   end
     end,
 
     config = function()
       local dap, dapui = require 'dap', require 'dapui'
-      dapui.setup()
+      dapui.setup {
+        -- Set icons to characters that are more likely to work in every terminal.
+        --    Feel free to remove or use ones that you like more! :)
+        --    Don't feel like these are good choices.
+        icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+        controls = {
+          icons = {
+            pause = '⏸',
+            play = '▶',
+            step_into = '⏎',
+            step_over = '⏭',
+            step_out = '⏮',
+            step_back = 'b',
+            run_last = '▶▶',
+            terminate = '⏹',
+            disconnect = '⏏',
+          },
+        },
+      }
 
-      -- helper to map keys buffer-locally
-      local function set_debug_keymaps()
-        local opts = { noremap = true, silent = true }
-
-        vim.keymap.set('n', '<Down>', dap.step_into, opts)
-        vim.keymap.set('n', '<Right>', dap.step_over, opts)
-        vim.keymap.set('n', '<Left>', dap.restart_frame, opts)
-        vim.keymap.set('n', '<Up>', dap.step_out, opts)
+      -- Change breakpoint icons
+      vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
+      vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
+      local breakpoint_icons = vim.g.have_nerd_font
+          and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
+        or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
+      for type, icon in pairs(breakpoint_icons) do
+        local tp = 'Dap' .. type
+        local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
+        vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
       end
 
-      local function clear_debug_keymaps()
-        vim.keymap.del('n', '<Down>')
-        vim.keymap.del('n', '<Right>')
-        vim.keymap.del('n', '<Left>')
-        vim.keymap.del('n', '<Up>')
-      end
+      local opts = { noremap = true, silent = true }
 
-      -- enable when session starts
-      dap.listeners.after.event_initialized['arrow-debug'] = function()
-        set_debug_keymaps()
-      end
+      vim.keymap.set('n', '<Down>', dap.step_into, opts)
+      vim.keymap.set('n', '<Right>', dap.step_over, opts)
+      vim.keymap.set('n', '<Left>', dap.restart_frame, opts)
+      vim.keymap.set('n', '<Up>', dap.step_out, opts)
 
-      -- disable when session ends
-      dap.listeners.before.event_terminated['arrow-debug'] = function()
-        clear_debug_keymaps()
-      end
-
-      dap.listeners.before.event_exited['arrow-debug'] = function()
-        clear_debug_keymaps()
-      end
       vim.keymap.set('n', '<leader>bb', dap.toggle_breakpoint, { noremap = true, desc = 'Toggle Breakpoint' })
       vim.keymap.set('n', '<leader>bB', function()
         dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')

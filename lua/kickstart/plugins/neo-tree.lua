@@ -10,16 +10,19 @@ return {
     'MunifTanjim/nui.nvim',
   },
   lazy = false,
+  cmd = 'Neotree', -- lazy-load ONLY when command is used
   keys = {
-    { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '<leader>e', '<cmd>Neotree toggle<cr>', desc = 'Toggle Neo-tree' },
   },
-  opts = {
-    filesystem = {
-      window = {
-        mappings = {
-          ['\\'] = 'close_window',
+  config = function()
+    require('neo-tree').setup {
+      close_if_last_window = true,
+      filesystem = {
+        follow_current_file = {
+          enabled = true,
         },
+        hijack_netrw_behavior = 'disabled', -- important
       },
-    },
-  },
+    }
+  end,
 }
