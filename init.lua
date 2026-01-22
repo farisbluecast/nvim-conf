@@ -205,6 +205,12 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
+-- Open terminal
+vim.keymap.set('n', '<leader>c', function()
+  vim.cmd 'terminal'
+  vim.cmd 'startinsert'
+end, { silent = true })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -952,53 +958,18 @@ require('lazy').setup({
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
-      --  and try some other
+      --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
-
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
-
-      statusline.setup {
-        use_icons = vim.g.have_nerd_font,
-
-        content = {
-          active = function()
-            local filename = vim.fn.expand '%:t'
-            if filename == '' then
-              filename = '[No Name]'
-            end
-            return filename
-          end,
-
-          inactive = function()
-            return ''
-          end,
-        },
-      }
-      -- statusline plugin
-      -- local statusline = require 'mini.statusline'
-      -- -- set use_icons to true if you have a Nerd Font
-      -- statusline.setup {
-      --   use_icons = vim.g.have_nerd_font,
-      --   -- override the whole content
-      --   content = function()
-      --     -- just the filename (no path). Use %:t for tail (filename only)
-      --     local name = vim.fn.expand '%:t'
-      --     if name == '' then
-      --       name = '[No Name]'
-      --     end
-      --     return name
-      --   end,
-      -- }
+      -- set use_icons to true if you have a Nerd Font
+      statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
-      -- ---@diagnostic disable-next-line: duplicate-set-field
-      -- statusline.section_location = function()
-      --   return '%2l:%-2v'
-      -- end
+      ---@diagnostic disable-next-line: duplicate-set-field
+      statusline.section_location = function()
+        return '%2l:%-2v'
+      end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
